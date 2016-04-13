@@ -1,0 +1,38 @@
+﻿@{
+    ViewBag.Title = "Unde mâncăm";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<header>
+    <div class="row">
+        <div class="column small-4 small-centered" style="text-align: center;">
+            <img src="http://bower.io/img/bower-logo.png" width="200" />
+        </div>
+    </div>
+</header>
+
+<div id="app-viewport" class="row">
+
+</div>
+
+<footer>
+    <div class="row">
+        <div class="column" style="text-align: center;">
+            Cegeka © 2016
+        </div>
+    </div>
+</footer>
+
+@section ScriptArea
+{
+    <script>
+        $(function () {
+            window.ReactDOM.render(
+                window.React.createElement(SuggestionApp, null),
+                document.getElementById('app-viewport')
+            );
+
+            $.connection.hub.start();
+        });
+    </script>
+}
