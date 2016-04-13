@@ -23,7 +23,7 @@ namespace Identools.Web.Controllers
                 try
                 {
                     var todaysSuggestions =
-                        await context.Suggestions.Where(s => s.StartTime.Day == DateTime.UtcNow.Day).ToListAsync();
+                        await context.Suggestions.Where(s => s.StartTime.Day == DateTime.Now.Day).ToListAsync();
                     suggestions.AddRange(todaysSuggestions);
                 }
                 catch (Exception ex)
@@ -52,7 +52,7 @@ namespace Identools.Web.Controllers
             var newSuggestion = new Suggestion
             {
                 Location = suggestion.Location,
-                StartTime = suggestion.StartTime.ToUniversalTime(),
+                StartTime = suggestion.StartTime,
                 UserName = HttpContext.Current.User.Identity.Name
             };
 
@@ -60,9 +60,9 @@ namespace Identools.Web.Controllers
             {
                 context.Suggestions.Add(newSuggestion);
                 await context.SaveChangesAsync();
-
-                SuggestionHub.UpdateSuggestions();
             }
+
+            SuggestionHub.AddSuggestion(newSuggestion);
 
             return Ok(newSuggestion);
         }
