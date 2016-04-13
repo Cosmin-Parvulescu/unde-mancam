@@ -8,7 +8,7 @@ using System.Web.Http;
 using Identools.Web.Data;
 using Identools.Web.Entities;
 using Identools.Web.Hubs;
-using Microsoft.AspNet.SignalR;
+using Identools.Web.Models;
 
 namespace Identools.Web.Controllers
 {
@@ -22,8 +22,7 @@ namespace Identools.Web.Controllers
             {
                 try
                 {
-                    var todaysSuggestions =
-                        await context.Suggestions.Where(s => s.StartTime.Day == DateTime.Now.Day).ToListAsync();
+                    var todaysSuggestions = await context.Suggestions.Where(s => s.StartTime.Day == DateTime.Now.Day).Include(s => s.SuggestionAttendees).ToListAsync();
                     suggestions.AddRange(todaysSuggestions);
                 }
                 catch (Exception ex)
@@ -32,7 +31,15 @@ namespace Identools.Web.Controllers
                 }
             }
 
-            return Ok(suggestions);
+            return Ok(suggestions.Select(s => new SuggestionListModel
+            {
+                Id = s.Id,
+                StartTime = s.StartTime,
+                Location = s.Location,
+                AttendeeCount = s.SuggestionAttendees.Count,
+                Attendees = s.SuggestionAttendees.Select(sa => sa.UserName.Split('\\').Last()),
+                Attending = s.SuggestionAttendees.Any(sa => sa.UserName == HttpContext.Current.User.Identity.Name)
+            }));
         }
 
         public async Task<IHttpActionResult> Get(Guid id)
@@ -60,9 +67,22 @@ namespace Identools.Web.Controllers
             {
                 context.Suggestions.Add(newSuggestion);
                 await context.SaveChangesAsync();
+
+                newSuggestion.SuggestionAttendees.Add(new SuggestionAttendee
+                {
+                    UserName = HttpContext.Current.User.Identity.Name
+                });
             }
 
-            SuggestionHub.AddSuggestion(newSuggestion);
+            SuggestionHub.AddSuggestion(new SuggestionListModel
+            {
+                Id = newSuggestion.Id,
+                StartTime = newSuggestion.StartTime,
+                Location = newSuggestion.Location,
+                AttendeeCount = newSuggestion.SuggestionAttendees.Count,
+                Attendees = newSuggestion.SuggestionAttendees.Select(sa => sa.UserName.Split('\\').Last()),
+                Attending = newSuggestion.SuggestionAttendees.Any(sa => sa.UserName == HttpContext.Current.User.Identity.Name)
+            });
 
             return Ok(newSuggestion);
         }
@@ -93,7 +113,50 @@ namespace Identools.Web.Controllers
         [HttpGet]
         public async Task<IHttpActionResult> Attend(Guid id)
         {
-            throw new NotImplementedException();
+            using (var context = new IdentoolsDbContext())
+            {
+                try
+                {
+                    var suggestion = await context.Suggestions.Include(s => s.SuggestionAttendees).SingleAsync(s => s.Id == id);
+                    var existingAttendance = suggestion.SuggestionAttendees.SingleOrDefault(sa => sa.UserName == HttpContext.Current.User.Identity.Name);
+
+                    if (existingAttendance == null)
+                    {
+                        var suggestionAttendee = new SuggestionAttendee
+                        {
+                            Suggestion = suggestion,
+                            UserName = HttpContext.Current.User.Identity.Name
+                        };
+                        suggestion.SuggestionAttendees.Add(suggestionAttendee);
+
+                        await context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        suggestion.SuggestionAttendees.Remove(existingAttendance);
+
+                        await context.SaveChangesAsync();
+                    }
+
+                    SuggestionHub.UpdateSuggestion(new SuggestionListModel
+                    {
+                        Id = suggestion.Id,
+                        StartTime = suggestion.StartTime,
+                        Location = suggestion.Location,
+                        AttendeeCount = suggestion.SuggestionAttendees.Count,
+                        Attendees = suggestion.SuggestionAttendees.Select(sa => sa.UserName.Split('\\').Last()),
+                        Attending =
+                                suggestion.SuggestionAttendees.Any(
+                                    sa => sa.UserName == HttpContext.Current.User.Identity.Name)
+                    });
+                }
+                catch (Exception ex)
+                {
+                    return InternalServerError(ex);
+                }
+            }
+
+            return Ok();
         }
     }
 }

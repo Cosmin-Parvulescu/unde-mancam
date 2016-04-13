@@ -11,6 +11,7 @@ namespace Identools.Web.Data
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             ConfigureSuggestions(modelBuilder);
+            ConfigureSuggestionAttendees(modelBuilder);
 
             base.OnModelCreating(modelBuilder);
         }
@@ -25,6 +26,22 @@ namespace Identools.Web.Data
                 .Entity<Suggestion>()
                 .Property(s => s.Id)
                 .HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+
+            modelBuilder
+                .Entity<Suggestion>()
+                .HasMany(s => s.SuggestionAttendees)
+                .WithRequired(sa => sa.Suggestion);
+        }
+
+        private void ConfigureSuggestionAttendees(DbModelBuilder modelBuilder)
+        {
+            modelBuilder
+                .Entity<SuggestionAttendee>()
+                .HasKey(sa => new { sa.SuggestionId, sa.UserName });
+
+            modelBuilder
+                .Entity<SuggestionAttendee>()
+                .HasRequired(sa => sa.Suggestion);
         }
     }
 }

@@ -1,4 +1,18 @@
-﻿var SuggestionApp = React.createClass({
+﻿var sortDescriptor = function(a, b) {
+    if (a.AttendeeCount > b.AttendeeCount)
+        return -1;
+    if (a.AttendeeCount < b.AttendeeCount)
+        return 1;
+
+    if (a.Location < b.Location)
+        return -1;
+    if (a.Location > b.Location)
+        return 1;
+
+    return 0;
+}
+
+var SuggestionApp = React.createClass({
     getInitialState: function () {
         return { suggestions: [] };
     },
@@ -9,7 +23,17 @@
             newSuggestions.push(suggestion);
 
             this.setState({
-                suggestions: newSuggestions
+                suggestions: newSuggestions.sort(sortDescriptor)
+            });
+        }.bind(this);
+        suggestionHub.client.updateSuggestion = function (updatedSuggestion) {
+            var newSuggestions = this.state.suggestions.filter(function (suggestion) {
+                return suggestion.Id !== updatedSuggestion.Id;
+            });
+            newSuggestions.push(updatedSuggestion);
+
+            this.setState({
+                suggestions: newSuggestions.sort(sortDescriptor)
             });
         }.bind(this);
 
@@ -18,7 +42,7 @@
             type: 'GET',
             success: function (suggestions) {
                 this.setState({
-                    suggestions: suggestions
+                    suggestions: suggestions.sort(sortDescriptor)
                 });
             }.bind(this)
         });
@@ -40,15 +64,29 @@ var SuggestionList = React.createClass({
 
         return (
             <div className="suggestion-list row">
-                { suggestions }
+                <div className="row">
+                    <SuggestionForm />
+                </div>
 
-                <SuggestionForm />
+                { suggestions }
             </div>
         );
     }
 });
 
 var Suggestion = React.createClass({
+    handleAttend: function () {
+        $.ajax({
+            url: 'api/suggestions/attend/' + this.props.suggestion.Id,
+            type: 'GET'
+        });
+    },
+    handleVote: function () {
+        $.ajax({
+            url: 'api/suggestions/vote/' + this.props.suggestion.Id,
+            type: 'GET'
+        });
+    },
     render: function () {
         return (
             <div className="column small-4">
@@ -57,12 +95,22 @@ var Suggestion = React.createClass({
                     <p className="suggestion-time">{ new Date(this.props.suggestion.StartTime).toLocaleTimeString() }</p>
 
                     <div className="row">
-                        <div className="column small-1">
-
+                        <div className="column small-4">
+                            <span data-tooltip aria-haspopup="true" className="has-tip" title={ this.props.suggestion.Attendees }>{ this.props.suggestion.AttendeeCount } going!</span>
                         </div>
 
-                        <div className="column small-1">
+                        <div className="column small-2">
+                            <button onClick={ this.handleAttend }>
+                                <i className={ "fa fa-user-plus " + (this.props.suggestion.Attending ? 'green' : '') } aria-hidden="true"></i>
+                            </button>
+                        </div>
 
+                        <div className="column small-2">
+                            &nbsp;
+                        </div>
+
+                        <div className="column small-4">
+                            &nbsp;
                         </div>
                     </div>
                 </div>
@@ -110,13 +158,13 @@ var SuggestionForm = React.createClass({
             },
             contentType: 'application/x-www-form-urlencoded'
         }).success(function () {
-            this.setState(this.getInitialState());
-        });
+            var initialState = this.getInitialState();
+            this.setState(initialState);
+        }.bind(this));
     },
     render: function () {
         return (
-            <div className="suggestion-form column small-4">
-                <h3>Adaugă o sugestie</h3>
+            <div className="suggestion-form column small-4 small-centered">
                 <div className="input-group">
                     <input className="input-group-field" type="text" name="Location" placeholder="Unde?" value={ this.state.Location } onChange={ this.handleLocationChange } />
 
@@ -134,7 +182,7 @@ var SuggestionForm = React.createClass({
                 </div>
 
 
-                <button className="button full-width" onClick={ this.handleSubmit }>Adaugă</button>
+                <button className="button expanded" onClick={ this.handleSubmit }>Adaugă</button>
             </div>
         );
     }

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using Identools.Web.Data;
 
 namespace Identools.Web.Entities
@@ -12,5 +14,12 @@ namespace Identools.Web.Entities
         public string UserName { get; set; }
 
         public DateTime StartTime { get; set; }
+
+        public ICollection<SuggestionAttendee> SuggestionAttendees { get; set; }
+
+        public Suggestion()
+        {
+            SuggestionAttendees = new List<SuggestionAttendee>();
+        }
     }
 }
