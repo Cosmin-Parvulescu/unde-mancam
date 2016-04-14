@@ -1,16 +1,4 @@
 ﻿var Suggestion = React.createClass({
-    handleAttend: function () {
-        $.ajax({
-            url: 'api/suggestions/attend/' + this.props.suggestion.Id,
-            type: 'GET'
-        });
-    },
-    handleVote: function () {
-        $.ajax({
-            url: 'api/suggestions/vote/' + this.props.suggestion.Id,
-            type: 'GET'
-        });
-    },
     render: function () {
         return (
             <div className="column small-12 medium-6 large-4">

@@ -34,8 +34,11 @@
 {
     <script>
         $(function () {
-            window.ReactDOM.render(
-                window.React.createElement(SuggestionApp, null),
+            var store = Redux.createStore(SuggestionsReducer, Redux.applyMiddleware(ReduxThunk.default));
+            var app = React.createElement(ReactRedux.Provider, { store: store }, React.createElement(SuggestionApp));
+
+            ReactDOM.render(
+                app,
                 document.getElementById('app-viewport')
             );
 

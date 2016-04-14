@@ -6,7 +6,6 @@ namespace Identools.Web
     {
         public static void RegisterBundles(BundleCollection bundles)
         {
-            bundles.Add(new ScriptBundle("~/react-components.jsx").IncludeDirectory("~/Scripts/components/", "*.jsx"));
         }
     }
 }

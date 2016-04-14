@@ -66,3 +66,5 @@
         );
     }
 });
+
+SuggestionForm = ReactRedux.connect()(SuggestionForm);
