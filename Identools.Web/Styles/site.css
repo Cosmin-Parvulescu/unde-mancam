@@ -3,6 +3,8 @@
 
 .suggestion {
     padding: 5px;
+
+    text-align: center;
 }
 
 .suggestion .suggestion-header {
