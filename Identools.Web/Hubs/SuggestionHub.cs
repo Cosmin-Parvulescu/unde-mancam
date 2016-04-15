@@ -8,7 +8,7 @@ namespace Identools.Web.Hubs
         public static void AddSuggestion(SuggestionListModel suggestion)
         {
             var context = GlobalHost.ConnectionManager.GetHubContext<SuggestionHub>();
-            context.Clients.All.addSuggestion(suggestion);
+            context.Clients.All.updateSuggestions(new { type = "POSTED_SUGGESTION", suggestion });
         }
 
         public static void UpdateSuggestion(SuggestionListModel suggestion)

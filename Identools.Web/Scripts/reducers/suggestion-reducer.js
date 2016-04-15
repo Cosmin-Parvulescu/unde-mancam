@@ -3,7 +3,10 @@
 
   switch (action.type) {
     case 'GOT_SUGGESTIONS':
-      return action.suggestions;
+      return action.suggestions.sort();
+
+    case 'POSTED_SUGGESTION':
+      return suggestions.concat(action.suggestion).sort();
 
     default:
       return suggestions;

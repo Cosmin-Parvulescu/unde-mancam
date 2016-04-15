@@ -28,18 +28,13 @@
         this.setState({ StartTime: event.target.value });
     },
     handleSubmit: function () {
-        $.ajax({
-            url: 'api/suggestions',
-            type: 'POST',
-            data: {
-                Location: this.state.Location,
-                StartTime: this.state.StartTime
-            },
-            contentType: 'application/x-www-form-urlencoded'
-        }).success(function () {
-            var initialState = this.getInitialState();
-            this.setState(initialState);
-        }.bind(this));
+        this.props.postSuggestion({
+            Location: this.state.Location,
+            StartTime: this.state.StartTime
+        });
+
+        var initialState = this.getInitialState();
+        this.setState(initialState);
     },
     render: function () {
         return (
@@ -67,4 +62,17 @@
     }
 });
 
-SuggestionForm = ReactRedux.connect()(SuggestionForm);
+var SuggestionFormMapDispatchToProps = function () {
+    return {
+        postSuggestion: function (suggestion) {
+            $.ajax({
+                url: 'api/suggestions',
+                type: 'POST',
+                data: suggestion,
+                contentType: 'application/x-www-form-urlencoded'
+            });
+        }
+    };
+};
+
+SuggestionForm = ReactRedux.connect(null, SuggestionFormMapDispatchToProps)(SuggestionForm);

@@ -29,8 +29,7 @@ namespace Identools.Web.Data
 
             modelBuilder
                 .Entity<Suggestion>()
-                .HasMany(s => s.SuggestionAttendees)
-                .WithRequired(sa => sa.Suggestion);
+                .HasMany(s => s.SuggestionAttendees);
         }
 
         private void ConfigureSuggestionAttendees(DbModelBuilder modelBuilder)
@@ -38,10 +37,6 @@ namespace Identools.Web.Data
             modelBuilder
                 .Entity<SuggestionAttendee>()
                 .HasKey(sa => new { sa.SuggestionId, sa.UserName });
-
-            modelBuilder
-                .Entity<SuggestionAttendee>()
-                .HasRequired(sa => sa.Suggestion);
         }
     }
 }

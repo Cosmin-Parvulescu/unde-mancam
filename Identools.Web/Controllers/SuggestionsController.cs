@@ -65,13 +65,13 @@ namespace Identools.Web.Controllers
 
             using (var context = new IdentoolsDbContext())
             {
-                context.Suggestions.Add(newSuggestion);
-                await context.SaveChangesAsync();
-
                 newSuggestion.SuggestionAttendees.Add(new SuggestionAttendee
                 {
                     UserName = HttpContext.Current.User.Identity.Name
                 });
+                context.Suggestions.Add(newSuggestion);
+
+                await context.SaveChangesAsync();
             }
 
             SuggestionHub.AddSuggestion(new SuggestionListModel
@@ -84,7 +84,7 @@ namespace Identools.Web.Controllers
                 Attending = newSuggestion.SuggestionAttendees.Any(sa => sa.UserName == HttpContext.Current.User.Identity.Name)
             });
 
-            return Ok(newSuggestion);
+            return Ok();
         }
 
         public async Task<IHttpActionResult> Put(Guid id, [FromBody] Suggestion suggestion)
@@ -124,7 +124,6 @@ namespace Identools.Web.Controllers
                     {
                         var suggestionAttendee = new SuggestionAttendee
                         {
-                            Suggestion = suggestion,
                             UserName = HttpContext.Current.User.Identity.Name
                         };
                         suggestion.SuggestionAttendees.Add(suggestionAttendee);

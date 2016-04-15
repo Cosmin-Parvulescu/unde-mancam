@@ -37,6 +37,10 @@
             var store = Redux.createStore(SuggestionsReducer, Redux.applyMiddleware(ReduxThunk.default));
             var app = React.createElement(ReactRedux.Provider, { store: store }, React.createElement(SuggestionApp));
 
+            $.connection.suggestionHub.client.updateSuggestions = function (action) {
+                store.dispatch(action);
+            };
+
             ReactDOM.render(
                 app,
                 document.getElementById('app-viewport')

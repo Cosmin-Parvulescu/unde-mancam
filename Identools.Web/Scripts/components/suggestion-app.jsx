@@ -1,6 +1,11 @@
 ﻿var SuggestionApp = React.createClass({
     render: function () {
-        return <SuggestionList />;
+        return (
+            <div className="suggestion-app">
+                <SuggestionForm />
+                <SuggestionList />
+            </div>
+        );
     }
 });
 
