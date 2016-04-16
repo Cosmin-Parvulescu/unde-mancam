@@ -139,7 +139,7 @@ namespace Identools.Web.Controllers
         }
 
         [HttpGet]
-        [Route("api/suggestions/attend")]
+        [Route("api/suggestions/attend/{id:Guid}")]
         public async Task<IHttpActionResult> Attend(Guid id)
         {
             using (var context = new IdentoolsDbContext())

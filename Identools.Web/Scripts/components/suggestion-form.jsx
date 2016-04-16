@@ -2,14 +2,18 @@
     getInitialState: function () {
         return {
             Location: undefined,
-            StartTime: undefined
+            StartTime: undefined,
         }
     },
     componentDidMount: function () {
         var self = this;
 
-        $('.suggestion-form input[name="Location"]').easyAutocomplete({
+        $.ajax({
             url: 'api/suggestions/locationhistory'
+        }).success(function (locations) {
+            $('.suggestion-form input[name="Location"]').easyAutocomplete({
+                data: locations
+            });
         });
 
         var startTimeEl = $('.suggestion-form input[name="StartTime"]');

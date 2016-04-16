@@ -42,8 +42,6 @@
             };
 
             $.connection.suggestionHub.client.updateSuggestion = function (suggestionId) {
-                console.log(suggestionId);
-
                 $.ajax({
                     url: 'api/suggestions/' + suggestionId,
                     type: 'GET'
