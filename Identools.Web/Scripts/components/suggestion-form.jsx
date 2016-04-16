@@ -8,6 +8,10 @@
     componentDidMount: function () {
         var self = this;
 
+        $('.suggestion-form input[name="Location"]').easyAutocomplete({
+            url: 'api/suggestions/locationhistory'
+        });
+
         var startTimeEl = $('.suggestion-form input[name="StartTime"]');
 
         startTimeEl.timepicker({

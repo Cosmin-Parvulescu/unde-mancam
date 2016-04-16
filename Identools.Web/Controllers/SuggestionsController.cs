@@ -77,6 +77,17 @@ namespace Identools.Web.Controllers
 
             using (var context = new IdentoolsDbContext())
             {
+                var existingAttendance =
+                        await
+                            context.SuggestionAttendees.SingleOrDefaultAsync(sa => sa.Suggestion.StartTime.Day == DateTime.Now.Day);
+                Guid? exisitingAttendanceSuggestionId = null;
+
+                if (existingAttendance != null)
+                {
+                    exisitingAttendanceSuggestionId = existingAttendance.SuggestionId;
+                    context.SuggestionAttendees.Remove(existingAttendance);
+                }
+
                 newSuggestion.SuggestionAttendees.Add(new SuggestionAttendee
                 {
                     UserName = HttpContext.Current.User.Identity.Name
@@ -84,6 +95,11 @@ namespace Identools.Web.Controllers
                 context.Suggestions.Add(newSuggestion);
 
                 await context.SaveChangesAsync();
+
+                if (exisitingAttendanceSuggestionId.HasValue)
+                {
+                    SuggestionHub.UpdateSuggestion(exisitingAttendanceSuggestionId.Value);
+                }
             }
 
             SuggestionHub.AddSuggestion(new SuggestionListModel
@@ -123,6 +139,7 @@ namespace Identools.Web.Controllers
         }
 
         [HttpGet]
+        [Route("api/suggestions/attend")]
         public async Task<IHttpActionResult> Attend(Guid id)
         {
             using (var context = new IdentoolsDbContext())
@@ -182,6 +199,20 @@ namespace Identools.Web.Controllers
             }
 
             return Ok();
+        }
+
+        [HttpGet]
+        [Route("api/suggestions/locationhistory")]
+        public async Task<IHttpActionResult> LocationHistory()
+        {
+            var locations = new List<string>();
+
+            using (var context = new IdentoolsDbContext())
+            {
+                locations.AddRange(await context.Suggestions.Select(s => s.Location).Distinct().ToListAsync());
+            }
+
+            return Ok(locations);
         }
     }
 }
