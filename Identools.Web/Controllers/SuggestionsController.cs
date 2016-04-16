@@ -129,27 +129,51 @@ namespace Identools.Web.Controllers
             {
                 try
                 {
-                    var suggestion = await context.Suggestions.Include(s => s.SuggestionAttendees).SingleAsync(s => s.Id == id);
-                    var existingAttendance = suggestion.SuggestionAttendees.SingleOrDefault(sa => sa.UserName == HttpContext.Current.User.Identity.Name);
+                    var existingAttendance =
+                        await
+                            context.SuggestionAttendees.SingleOrDefaultAsync(sa => sa.Suggestion.StartTime.Day == DateTime.Now.Day);
 
                     if (existingAttendance == null)
                     {
                         var suggestionAttendee = new SuggestionAttendee
                         {
+                            SuggestionId = id,
                             UserName = HttpContext.Current.User.Identity.Name
                         };
-                        suggestion.SuggestionAttendees.Add(suggestionAttendee);
+
+                        context.SuggestionAttendees.Add(suggestionAttendee);
 
                         await context.SaveChangesAsync();
+
+                        SuggestionHub.UpdateSuggestion(id);
                     }
                     else
                     {
-                        suggestion.SuggestionAttendees.Remove(existingAttendance);
+                        if (existingAttendance.SuggestionId == id)
+                        {
+                            context.SuggestionAttendees.Remove(existingAttendance);
 
-                        await context.SaveChangesAsync();
+                            await context.SaveChangesAsync();
+                        }
+                        else
+                        {
+                            context.SuggestionAttendees.Remove(existingAttendance);
+
+                            var suggestionAttendee = new SuggestionAttendee
+                            {
+                                SuggestionId = id,
+                                UserName = HttpContext.Current.User.Identity.Name
+                            };
+
+                            context.SuggestionAttendees.Add(suggestionAttendee);
+
+                            await context.SaveChangesAsync();
+
+                            SuggestionHub.UpdateSuggestion(id);
+                        }
+
+                        SuggestionHub.UpdateSuggestion(existingAttendance.SuggestionId);
                     }
-
-                    SuggestionHub.UpdateSuggestion(suggestion.Id);
                 }
                 catch (Exception ex)
                 {

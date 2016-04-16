@@ -8,5 +8,7 @@ namespace Identools.Web.Entities
         public Guid SuggestionId { get; set; }
 
         public string UserName { get; set; }
+
+        public Suggestion Suggestion { get; set; }
     }
 }

@@ -8,6 +8,8 @@ namespace Identools.Web.Data
     {
         public DbSet<Suggestion> Suggestions { get; set; }
 
+        public DbSet<SuggestionAttendee> SuggestionAttendees { get; set; }
+
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             ConfigureSuggestions(modelBuilder);
@@ -37,6 +39,10 @@ namespace Identools.Web.Data
             modelBuilder
                 .Entity<SuggestionAttendee>()
                 .HasKey(sa => new { sa.SuggestionId, sa.UserName });
+
+            modelBuilder
+                .Entity<SuggestionAttendee>()
+                .HasRequired(sa => sa.Suggestion);
         }
     }
 }
