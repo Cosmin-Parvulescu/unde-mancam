@@ -42,16 +42,28 @@ namespace Identools.Web.Controllers
             }));
         }
 
+        [Route("api/suggestions/{id:Guid}")]
         public async Task<IHttpActionResult> Get(Guid id)
         {
             Suggestion suggestion;
 
             using (var context = new IdentoolsDbContext())
             {
-                suggestion = await context.Suggestions.FindAsync(id);
+                suggestion = await context.Suggestions.Include(s => s.SuggestionAttendees).SingleAsync(s => s.Id == id);
             }
 
-            return Ok(suggestion);
+            var suggestionListModel = new SuggestionListModel
+            {
+                Id = suggestion.Id,
+                StartTime = suggestion.StartTime,
+                Location = suggestion.Location,
+                AttendeeCount = suggestion.SuggestionAttendees.Count,
+                Attendees = suggestion.SuggestionAttendees.Select(sa => sa.UserName.Split('\\').Last()),
+                Attending =
+                    suggestion.SuggestionAttendees.Any(sa => sa.UserName == HttpContext.Current.User.Identity.Name)
+            };
+
+            return Ok(suggestionListModel);
         }
 
         public async Task<IHttpActionResult> Post([FromBody] Suggestion suggestion)
@@ -137,17 +149,7 @@ namespace Identools.Web.Controllers
                         await context.SaveChangesAsync();
                     }
 
-                    SuggestionHub.UpdateSuggestion(new SuggestionListModel
-                    {
-                        Id = suggestion.Id,
-                        StartTime = suggestion.StartTime,
-                        Location = suggestion.Location,
-                        AttendeeCount = suggestion.SuggestionAttendees.Count,
-                        Attendees = suggestion.SuggestionAttendees.Select(sa => sa.UserName.Split('\\').Last()),
-                        Attending =
-                                suggestion.SuggestionAttendees.Any(
-                                    sa => sa.UserName == HttpContext.Current.User.Identity.Name)
-                    });
+                    SuggestionHub.UpdateSuggestion(suggestion.Id);
                 }
                 catch (Exception ex)
                 {

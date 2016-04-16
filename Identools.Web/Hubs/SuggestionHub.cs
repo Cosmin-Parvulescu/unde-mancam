@@ -1,4 +1,5 @@
-﻿using Identools.Web.Models;
+﻿using System;
+using Identools.Web.Models;
 using Microsoft.AspNet.SignalR;
 
 namespace Identools.Web.Hubs
@@ -11,10 +12,10 @@ namespace Identools.Web.Hubs
             context.Clients.All.updateSuggestions(new { type = "POSTED_SUGGESTION", suggestion });
         }
 
-        public static void UpdateSuggestion(SuggestionListModel suggestion)
+        public static void UpdateSuggestion(Guid suggestionId)
         {
             var context = GlobalHost.ConnectionManager.GetHubContext<SuggestionHub>();
-            context.Clients.All.updateSuggestion(suggestion);
+            context.Clients.All.updateSuggestion(suggestionId);
         }
     }
 }

@@ -1,4 +1,7 @@
 ﻿var Suggestion = React.createClass({
+    handleAttend: function () {
+        this.props.handleAttend(this.props.suggestion.Id);
+    },
     render: function () {
         return (
             <div className="column small-12 medium-6 large-4">
@@ -22,3 +25,16 @@
         );
     }
 });
+
+var SuggestionMapDispatchToProps = function () {
+    return {
+        handleAttend: function (suggestionId) {
+            $.ajax({
+                url: 'api/suggestions/attend/' + suggestionId,
+                type: 'GET'
+            });
+        }
+    };
+};
+
+Suggestion = ReactRedux.connect(null, SuggestionMapDispatchToProps)(Suggestion);

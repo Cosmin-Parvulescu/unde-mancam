@@ -41,6 +41,19 @@
                 store.dispatch(action);
             };
 
+            $.connection.suggestionHub.client.updateSuggestion = function (suggestionId) {
+                $.ajax({
+                    url: 'api/suggestions/' + suggestionId,
+                    type: 'GET'
+                }).success(function (suggestion) {
+                    store.dispatch({
+                        type: 'UPDATE_SUGGESTION',
+                        suggestion: suggestion
+                    });
+                });
+
+            };
+
             ReactDOM.render(
                 app,
                 document.getElementById('app-viewport')

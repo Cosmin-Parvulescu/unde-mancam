@@ -3,7 +3,8 @@
         this.props.onComponentDidMount();
     },
     render: function () {
-        var suggestions = this.props.suggestions.map(function (suggestion) { return <p key={ suggestion.Id }>{ suggestion.Location}</p> });
+        var suggestions = this.props.suggestions.map(function (suggestion) { return <Suggestion key={ suggestion.Id } suggestion={ suggestion } /> });
+
         return <div>{ suggestions }</div>;
     }
 });
