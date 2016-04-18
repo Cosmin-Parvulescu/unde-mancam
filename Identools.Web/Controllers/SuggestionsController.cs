@@ -79,7 +79,7 @@ namespace Identools.Web.Controllers
             {
                 var existingAttendance =
                         await
-                            context.SuggestionAttendees.SingleOrDefaultAsync(sa => sa.Suggestion.StartTime.Day == DateTime.Now.Day);
+                            context.SuggestionAttendees.SingleOrDefaultAsync(sa => sa.Suggestion.StartTime.Day == DateTime.Now.Day && sa.UserName == HttpContext.Current.User.Identity.Name);
                 Guid? exisitingAttendanceSuggestionId = null;
 
                 if (existingAttendance != null)
