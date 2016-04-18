@@ -1,12 +1,12 @@
 ﻿using System;
-using Identools.Web.Models;
 using Microsoft.AspNet.SignalR;
+using UndeMancam.Core.Models;
 
 namespace Identools.Web.Hubs
 {
     public class SuggestionHub : Hub
     {
-        public static void AddSuggestion(SuggestionListModel suggestion)
+        public static void AddSuggestion(SuggestionCardModel suggestion)
         {
             var context = GlobalHost.ConnectionManager.GetHubContext<SuggestionHub>();
             context.Clients.All.updateSuggestions(new { type = "POSTED_SUGGESTION", suggestion });

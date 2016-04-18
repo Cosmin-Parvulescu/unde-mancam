@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
 using Identools.Web.Data;
-using Identools.Web.Entities;
 using Identools.Web.Hubs;
-using Identools.Web.Models;
+using UndeMancam.Core.Entities;
+using UndeMancam.Core.Models;
 
 namespace Identools.Web.Controllers
 {
@@ -31,7 +31,7 @@ namespace Identools.Web.Controllers
                 }
             }
 
-            return Ok(suggestions.Select(s => new SuggestionListModel
+            return Ok(suggestions.Select(s => new SuggestionCardModel
             {
                 Id = s.Id,
                 StartTime = s.StartTime,
@@ -52,7 +52,7 @@ namespace Identools.Web.Controllers
                 suggestion = await context.Suggestions.Include(s => s.SuggestionAttendees).SingleAsync(s => s.Id == id);
             }
 
-            var suggestionListModel = new SuggestionListModel
+            var suggestionListModel = new SuggestionCardModel
             {
                 Id = suggestion.Id,
                 StartTime = suggestion.StartTime,
@@ -102,7 +102,7 @@ namespace Identools.Web.Controllers
                 }
             }
 
-            SuggestionHub.AddSuggestion(new SuggestionListModel
+            SuggestionHub.AddSuggestion(new SuggestionCardModel
             {
                 Id = newSuggestion.Id,
                 StartTime = newSuggestion.StartTime,

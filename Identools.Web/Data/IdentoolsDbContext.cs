@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
-using Identools.Web.Entities;
+using UndeMancam.Core.Entities;
 
 namespace Identools.Web.Data
 {

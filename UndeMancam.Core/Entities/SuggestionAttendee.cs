@@ -1,7 +1,6 @@
 ﻿using System;
-using Identools.Web.Data;
 
-namespace Identools.Web.Entities
+namespace UndeMancam.Core.Entities
 {
     public class SuggestionAttendee
     {
