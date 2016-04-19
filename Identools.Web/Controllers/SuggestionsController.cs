@@ -34,7 +34,7 @@ namespace Identools.Web.Controllers
             return Ok(suggestions.Select(s => new SuggestionCardModel
             {
                 Id = s.Id,
-                StartTime = s.StartTime,
+                StartTime = s.StartTime.ToUniversalTime(),
                 Location = s.Location,
                 AttendeeCount = s.SuggestionAttendees.Count,
                 Attendees = s.SuggestionAttendees.Select(sa => sa.UserName.Split('\\').Last()),

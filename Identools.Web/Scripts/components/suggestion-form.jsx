@@ -21,7 +21,8 @@
         startTimeEl.timepicker({
             minTime: '11:00AM',
             maxTime: '02:00PM',
-            disableTextInput: true
+            disableTextInput: true,
+            step: 15
         });
         startTimeEl.on('changeTime', function () {
             self.setState({
