@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
+using AutoMapper;
 using Identools.Web.Data;
 using Identools.Web.Hubs;
 using UndeMancam.Core.Entities;
@@ -31,15 +32,9 @@ namespace Identools.Web.Controllers
                 }
             }
 
-            return Ok(suggestions.Select(s => new SuggestionCardModel
-            {
-                Id = s.Id,
-                StartTime = s.StartTime.ToUniversalTime(),
-                Location = s.Location,
-                AttendeeCount = s.SuggestionAttendees.Count,
-                Attendees = s.SuggestionAttendees.Select(sa => sa.UserName.Split('\\').Last()),
-                Attending = s.SuggestionAttendees.Any(sa => sa.UserName == HttpContext.Current.User.Identity.Name)
-            }));
+            var suggestionCardModels = suggestions.Select(Mapper.Map<SuggestionCardModel>);
+
+            return Ok(suggestionCardModels);
         }
 
         [Route("api/suggestions/{id:Guid}")]
@@ -52,18 +47,9 @@ namespace Identools.Web.Controllers
                 suggestion = await context.Suggestions.Include(s => s.SuggestionAttendees).SingleAsync(s => s.Id == id);
             }
 
-            var suggestionListModel = new SuggestionCardModel
-            {
-                Id = suggestion.Id,
-                StartTime = suggestion.StartTime,
-                Location = suggestion.Location,
-                AttendeeCount = suggestion.SuggestionAttendees.Count,
-                Attendees = suggestion.SuggestionAttendees.Select(sa => sa.UserName.Split('\\').Last()),
-                Attending =
-                    suggestion.SuggestionAttendees.Any(sa => sa.UserName == HttpContext.Current.User.Identity.Name)
-            };
+            var suggestionCardModel = Mapper.Map<SuggestionCardModel>(suggestion);
 
-            return Ok(suggestionListModel);
+            return Ok(suggestionCardModel);
         }
 
         public async Task<IHttpActionResult> Post([FromBody] Suggestion suggestion)
@@ -102,15 +88,9 @@ namespace Identools.Web.Controllers
                 }
             }
 
-            SuggestionHub.AddSuggestion(new SuggestionCardModel
-            {
-                Id = newSuggestion.Id,
-                StartTime = newSuggestion.StartTime,
-                Location = newSuggestion.Location,
-                AttendeeCount = newSuggestion.SuggestionAttendees.Count,
-                Attendees = newSuggestion.SuggestionAttendees.Select(sa => sa.UserName.Split('\\').Last()),
-                Attending = newSuggestion.SuggestionAttendees.Any(sa => sa.UserName == HttpContext.Current.User.Identity.Name)
-            });
+            var suggestionCardModel = Mapper.Map<SuggestionCardModel>(newSuggestion);
+
+            SuggestionHub.AddSuggestion(suggestionCardModel);
 
             return Ok();
         }
