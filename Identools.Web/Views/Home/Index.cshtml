@@ -6,12 +6,12 @@
 <header>
     <div class="row">
         <div class="column small-4 large-4 small-centered" style="text-align: center;">
-            <h1 style="font-family: 'Lobster', cursive;">Unde mâncăm ?</h1>
+            <!--<h1 style="font-family: 'Lobster', cursive;">Unde mâncăm ?</h1>-->
         </div>
     </div>
     <div class="row">
         <div class="column small-4 large-4 small-centered" style="text-align: center;">
-            <img src="http://www.recisicalde.ro/img/produse/9.png" width="100%" />
+            <img src="https://www.concern.net/sites/www.concern.net/files/media/page/food-right-now-logo.png" width="100%" />
 
             <h3></h3>
         </div>
@@ -33,7 +33,13 @@
 @section ScriptArea
 {
     <script>
+        var permissionGranted = false;
         $(function () {
+            Notification.requestPermission(function (permission) {
+                if (permission === 'granted')
+                    permissionGranted = true;
+            });
+
             var store = Redux.createStore(SuggestionsReducer, Redux.applyMiddleware(ReduxThunk.default));
             var app = React.createElement(ReactRedux.Provider, { store: store }, React.createElement(SuggestionApp));
 
@@ -51,6 +57,31 @@
                         suggestion: suggestion
                     });
                 });
+            };
+
+            $.connection.suggestionHub.client.notifyAttendance = function (username, suggestionLocation, attendance) {
+                var notificationMessage = {
+                    title: '',
+                    body: ''
+                };
+
+                if (attendance === true) {
+                    notificationMessage.title = 'Woo!';
+                    notificationMessage.body = 'Se pare că ' + username + ' a decis să meargă la ' + suggestionLocation + '. Îți imaginezi ce bucurie pe capul lor?';
+                } else {
+                    notificationMessage.title = 'Aww :(';
+                    notificationMessage.body += username + ' a pierdut încrederea în ' + suggestionLocation + '. Ce pierdere.';
+                }
+
+                if (Notification.permission === 'granted') {
+                    new Notification(notificationMessage.title, { body: notificationMessage.body });
+                } else {
+                    Notification.requestPermission(function (permission) {
+                        if (permission === 'granted') {
+                            new Notification(notificationMessage.title, { body: notificationMessage.body });
+                        }
+                    });
+                }
             };
 
             ReactDOM.render(
