@@ -3,7 +3,7 @@
         this.props.handleAttend(this.props.suggestion.Id);
     },
     getLocalDate: function(utcDateString) {
-        var dateToConvert = new Date(utcDateString);
+        var dateToConvert = new Date(utcDateString + 'Z');
 
         dateToConvert.setFullYear(dateToConvert.getUTCFullYear(), dateToConvert.getUTCMonth(), dateToConvert.getUTCDate());
         dateToConvert.setHours(dateToConvert.getUTCHours(), dateToConvert.getUTCMinutes(), dateToConvert.getUTCSeconds(), 0);
