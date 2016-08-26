@@ -23,7 +23,7 @@ namespace Identools.Web.Controllers
             {
                 try
                 {
-                    var todaysSuggestions = await context.Suggestions.Where(s => s.StartTime.Day == DateTime.Now.Day).Include(s => s.SuggestionAttendees).ToListAsync();
+                    var todaysSuggestions = await context.Suggestions.Where(s => s.StartTime.Day == DateTime.Now.Day && s.StartTime.Hour >= DateTime.Now.Hour).Include(s => s.SuggestionAttendees).ToListAsync();
                     suggestions.AddRange(todaysSuggestions);
                 }
                 catch (Exception ex)
