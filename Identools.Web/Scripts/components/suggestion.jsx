@@ -1,13 +1,20 @@
 ﻿var Suggestion = React.createClass({
-    handleAttend: function () {
+    handleAttend: function() {
         this.props.handleAttend(this.props.suggestion.Id);
     },
-    render: function () {
+    getLocalDate: function(utcDateString) {
+        var dateToConvert = new Date(utcDateString);
+
+        dateToConvert.setFullYear(dateToConvert.getUTCFullYear(), dateToConvert.getUTCMonth(), dateToConvert.getUTCDate());
+        dateToConvert.setHours(dateToConvert.getUTCHours(), dateToConvert.getUTCMinutes(), dateToConvert.getUTCSeconds(), 0);
+        return dateToConvert;
+    },
+    render: function() {
         return (
             <div className="column small-12 medium-6 large-4">
                 <div className="suggestion">
                     <h2 className="suggestion-header">{ this.props.suggestion.Location }</h2>
-                    <p className="suggestion-time">{ new Date(this.props.suggestion.StartTime).toLocaleTimeString() }</p>
+                    <p className="suggestion-time">{ this.getLocalDate(this.props.suggestion.StartTime).toLocaleTimeString() }</p>
 
                     <div className="row">
                         <div className="column">
