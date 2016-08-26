@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.AspNet.SignalR;
+using UndeMancam.Core.Entities;
 using UndeMancam.Core.Models;
 
 namespace Identools.Web.Hubs
@@ -16,6 +17,12 @@ namespace Identools.Web.Hubs
         {
             var context = GlobalHost.ConnectionManager.GetHubContext<SuggestionHub>();
             context.Clients.All.updateSuggestion(suggestionId);
+        }
+
+        public static void AnnounceAttendance(string username, string suggestionLocation, bool attend)
+        {
+            var context = GlobalHost.ConnectionManager.GetHubContext<SuggestionHub>();
+            context.Clients.All.notifyAttendance(username, suggestionLocation, attend);
         }
     }
 }

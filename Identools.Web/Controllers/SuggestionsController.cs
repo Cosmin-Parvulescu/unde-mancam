@@ -126,16 +126,18 @@ namespace Identools.Web.Controllers
             {
                 try
                 {
+                    var username = HttpContext.Current.User.Identity.Name;
+
                     var existingAttendance =
                         await
-                            context.SuggestionAttendees.SingleOrDefaultAsync(sa => sa.Suggestion.StartTime.Day == DateTime.Now.Day && sa.UserName == HttpContext.Current.User.Identity.Name);
+                            context.SuggestionAttendees.Include(sa => sa.Suggestion).SingleOrDefaultAsync(sa => sa.Suggestion.StartTime.Day == DateTime.Now.Day && sa.UserName == username);
 
                     if (existingAttendance == null)
                     {
                         var suggestionAttendee = new SuggestionAttendee
                         {
                             SuggestionId = id,
-                            UserName = HttpContext.Current.User.Identity.Name
+                            UserName = username
                         };
 
                         context.SuggestionAttendees.Add(suggestionAttendee);
@@ -143,6 +145,10 @@ namespace Identools.Web.Controllers
                         await context.SaveChangesAsync();
 
                         SuggestionHub.UpdateSuggestion(id);
+
+                        var suggestion = context.Suggestions.Find(id);
+
+                        SuggestionHub.AnnounceAttendance(username.Split('\\').Last(), suggestion.Location, true);
                     }
                     else
                     {
@@ -151,15 +157,23 @@ namespace Identools.Web.Controllers
                             context.SuggestionAttendees.Remove(existingAttendance);
 
                             await context.SaveChangesAsync();
+
+                            var suggestion = context.Suggestions.Find(id);
+
+                            SuggestionHub.AnnounceAttendance(username.Split('\\').Last(), suggestion.Location, false);
                         }
                         else
                         {
+                            var existingAttendanceLocation = existingAttendance.Suggestion.Location;
+
                             context.SuggestionAttendees.Remove(existingAttendance);
+
+                            SuggestionHub.AnnounceAttendance(username.Split('\\').Last(), existingAttendanceLocation, false);
 
                             var suggestionAttendee = new SuggestionAttendee
                             {
                                 SuggestionId = id,
-                                UserName = HttpContext.Current.User.Identity.Name
+                                UserName = username
                             };
 
                             context.SuggestionAttendees.Add(suggestionAttendee);
@@ -167,6 +181,7 @@ namespace Identools.Web.Controllers
                             await context.SaveChangesAsync();
 
                             SuggestionHub.UpdateSuggestion(id);
+                            SuggestionHub.AnnounceAttendance(username.Split('\\').Last(), existingAttendanceLocation, true);
                         }
 
                         SuggestionHub.UpdateSuggestion(existingAttendance.SuggestionId);
